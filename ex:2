@@ -1,0 +1,273 @@
+xml file:
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E8F5E9"
+    android:padding="20dp"
+    android:gravity="top|start"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+</LinearLayout>
+
+Java File:
+package com.example.kamarajcollege;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    EditText nameEditText, regNoEditText;
+    RadioGroup genderGroup;
+    Spinner eventSpinner, courseSpinner;
+    CheckBox checkTechnical, checkNonTechnical;
+    Button submitBtn;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        nameEditText = findViewById(R.id.editTextName);
+        regNoEditText = findViewById(R.id.editTextRegNo);
+        genderGroup = findViewById(R.id.radioGroupGender);
+        eventSpinner = findViewById(R.id.spinnerEvent);
+        courseSpinner = findViewById(R.id.spinnerCourse);
+        checkTechnical = findViewById(R.id.checkTechnical);
+        checkNonTechnical = findViewById(R.id.checkNonTechnical);
+        submitBtn = findViewById(R.id.buttonSubmit);
+
+        submitBtn.setOnClickListener(v -> {
+
+            String name = nameEditText.getText().toString().trim();
+            String regNo = regNoEditText.getText().toString().trim();
+            String event = eventSpinner.getSelectedItem().toString();
+            String course = courseSpinner.getSelectedItem().toString();
+            int selectedId = genderGroup.getCheckedRadioButtonId();
+
+            if (name.isEmpty()) {
+                nameEditText.setError("Enter Name");
+                return;
+            }
+
+            if (regNo.isEmpty()) {
+                regNoEditText.setError("Enter Registration Number");
+                return;
+            }
+
+            if (selectedId == -1) {
+                Toast.makeText(this, "Select Gender", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!checkTechnical.isChecked() && !checkNonTechnical.isChecked()) {
+                Toast.makeText(this, "Select Event Type", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            RadioButton selectedRadio = findViewById(selectedId);
+            String gender = selectedRadio.getText().toString();
+
+            String type = "";
+            if (checkTechnical.isChecked()) type += "Technical ";
+            if (checkNonTechnical.isChecked()) type += "Non-Technical";
+
+            Intent intent = new Intent(MainActivity.this, MainActivity2.class);
+            intent.putExtra("name", name);
+            intent.putExtra("regno", regNo);
+            intent.putExtra("gender", gender);
+            intent.putExtra("event", event);
+            intent.putExtra("course", course);
+            intent.putExtra("type", type);
+
+            startActivity(intent);
+        });
+    }
+}
+Xml File:
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F3E5F5"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:text="Event Registration"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <!-- Name -->
+        <EditText
+            android:id="@+id/editTextName"
+            android:hint="Enter Name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"/>
+
+        <!-- Registration Number -->
+        <EditText
+            android:id="@+id/editTextRegNo"
+            android:hint="Enter Registration Number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"/>
+
+        <!-- Gender -->
+        <RadioGroup
+            android:id="@+id/radioGroupGender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp">
+
+            <RadioButton
+                android:id="@+id/radioMale"
+                android:text="Male"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <RadioButton
+                android:id="@+id/radioFemale"
+                android:text="Female"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </RadioGroup>
+
+        <!-- Event Spinner -->
+        <Spinner
+            android:id="@+id/spinnerEvent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/event_array"
+            android:layout_marginBottom="15dp"/>
+
+        <!-- Course Spinner -->
+        <Spinner
+            android:id="@+id/spinnerCourse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/course_array"
+            android:layout_marginBottom="15dp"/>
+
+        <!-- Checkboxes -->
+        <CheckBox
+            android:id="@+id/checkTechnical"
+            android:text="Technical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <CheckBox
+            android:id="@+id/checkNonTechnical"
+            android:text="Non-Technical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Submit Button -->
+        <Button
+            android:id="@+id/buttonSubmit"
+            android:text="Submit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+</ScrollView>
+
+Java File:
+package com.example.kamarajcollege;
+
+import android.os.Bundle;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity2 extends AppCompatActivity {
+
+    TextView resultText;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main2);
+
+        resultText = findViewById(R.id.textResult);
+
+        String name = getIntent().getStringExtra("name");
+        String regNo = getIntent().getStringExtra("regno");
+        String gender = getIntent().getStringExtra("gender");
+        String event = getIntent().getStringExtra("event");
+        String course = getIntent().getStringExtra("course");
+        String type = getIntent().getStringExtra("type");
+
+        resultText.setText(
+                "Event Registration Details\n\n" +
+                        "Name: " + name +
+                        "\nRegistration No: " + regNo +
+                        "\nGender: " + gender +
+                        "\nEvent: " + event +
+                        "\nCourse: " + course +
+                        "\nType: " + type
+        );
+    }
+}
+
+
+
+string.xml
+<resources>
+
+    <string name="app_name">Event Registration App</string>
+
+    <string-array name="event_array">
+        <item>Select Event</item>
+        <item>Group Dance</item>
+        <item>Drama</item>
+        <item>paper presentation</item>
+        <item>debugging</item>
+    </string-array>
+
+    <string-array name="course_array">
+        <item>Select Course</item>
+        <item>Artificial Intelligence</item>
+        <item>Data Science</item>
+        <item>Computer Science</item>
+        <item>Information Technology</item>
+    </string-array>
+
+</resources>
+
+
+
+
+
+
+
+
+
+
+
+
+  
