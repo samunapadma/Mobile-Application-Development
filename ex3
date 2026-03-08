@@ -1,0 +1,73 @@
+Xml File: 
+<?xml version="1.0" encoding="utf-8"?> 
+<LinearLayout 
+xmlns:android="http://schemas.android.com/apk/res/android" 
+android:layout_width="match_parent" 
+android:layout_height="match_parent" 
+android:gravity="center" 
+android:orientation="vertical"> 
+<ImageView 
+android:id="@+id/imageView" 
+android:layout_width="300dp" 
+android:layout_height="300dp" /> 
+<Button 
+android:id="@+id/button" 
+android:layout_width="wrap_content" 
+android:layout_height="wrap_content" 
+android:text="Draw" /> 
+</LinearLayout> 
+
+Java File: 
+package com.example.ex78; 
+import android.graphics.Bitmap; 
+import android.graphics.Canvas; 
+import android.graphics.Color; 
+import android.graphics.Paint; 
+import android.os.Bundle; 
+import android.view.View; 
+import android.widget.Button; 
+import android.widget.ImageView; 
+import androidx.appcompat.app.AppCompatActivity; 
+public class MainActivity extends AppCompatActivity { 
+Button b; 
+ImageView im; 
+Canvas c; 
+Paint p; 
+@Override 
+protected void onCreate(Bundle savedInstanceState) { 
+super.onCreate(savedInstanceState); 
+setContentView(R.layout.activity_main); 
+b = findViewById(R.id.button); 
+im = findViewById(R.id.imageView); 
+Bitmap bg = Bitmap.createBitmap(720, 1280, Bitmap.Config.ARGB_8888); 
+c = new Canvas(bg); 
+p = new Paint(); 
+im.setImageBitmap(bg); 
+b.setOnClickListener(new View.OnClickListener() { 
+@Override 
+public void onClick(View v) { 
+c.drawColor(Color.CYAN);  
+p.setColor(Color.WHITE); 
+c.drawCircle(150, 200, 60, p); 
+c.drawCircle(220, 200, 70, p); 
+c.drawCircle(290, 200, 60, p); 
+p.setColor(Color.rgb(139,69,19)); 
+c.drawRect(120, 600, 160, 750, p); 
+p.setColor(Color.GREEN); 
+c.drawCircle(140, 550, 80, p); 
+p.setColor(Color.YELLOW); 
+c.drawRect(300, 600, 650, 900, p); 
+p.setColor(Color.RED); 
+float[] roof = {300,600,650,600,475,450}; 
+c.drawVertices(Canvas.VertexMode.TRIANGLES, 
+roof.length, roof, 0, 
+null, 0, null, 0, 
+null, 0, 0, p); 
+p.setColor(Color.DKGRAY); 
+c.drawRect(450, 750, 520, 900, p); 
+p.setColor(Color.BLUE); 
+c.drawRect(50, 850, 250, 950, p); 
+p.setColor(Color.WHITE); 
+p.setTextSize(40); 
+c.drawText("Pool", 100, 910, p); 
+})}} 
