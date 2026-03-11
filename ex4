@@ -1,1 +1,385 @@
+Java File:
+package com.example.kamarajcollege4;
+import android.app.DatePickerDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
+import java.util.Calendar;
+public class MainActivity extends AppCompatActivity {
+    EditText etName, etDept, etYear, etDob;
+    RadioGroup rgGender;
+    Spinner spEvent;
+    Button btnSubmit, btnDisplay;
+    SQLiteDatabase db;
+    String gender = "";
+@Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        etName = findViewById(R.id.etName);
+        etDept = findViewById(R.id.etDept);
+        etYear = findViewById(R.id.etYear);
+        etDob = findViewById(R.id.etDob);
+
+        rgGender = findViewById(R.id.rgGender);
+        spEvent = findViewById(R.id.spEvent);
+
+        btnSubmit = findViewById(R.id.btnSubmit);
+        btnDisplay = findViewById(R.id.btnDisplay);
+
+        // Spinner Event List
+        String[] events = {"Singing", "Group Dance", "Folk Dance", "Drama"};
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                events);
+
+        spEvent.setAdapter(adapter);
+
+        // Database
+        db = openOrCreateDatabase("KamarajCollegeDB", Context.MODE_PRIVATE, null);
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS event(" +
+                "name TEXT," +
+                "dept TEXT," +
+                "year TEXT," +
+                "dob TEXT," +
+                "gender TEXT," +
+                "event TEXT)");
+
+        // Date Picker
+        etDob.setOnClickListener(v -> {
+            Calendar c = Calendar.getInstance();
+
+            new DatePickerDialog(this,
+                    (view, year, month, day) ->
+                            etDob.setText(day + "/" + (month + 1) + "/" + year),
+                    c.get(Calendar.YEAR),
+                    c.get(Calendar.MONTH),
+                    c.get(Calendar.DAY_OF_MONTH)).show();
+        });
+
+        // Submit Button
+        btnSubmit.setOnClickListener(v -> {
+
+            int id = rgGender.getCheckedRadioButtonId();
+
+            if (id == -1) {
+                Toast.makeText(this, "Select Gender", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            gender = ((RadioButton) findViewById(id)).getText().toString();
+
+            db.execSQL("INSERT INTO event VALUES('" +
+                    etName.getText() + "','" +
+                    etDept.getText() + "','" +
+                    etYear.getText() + "','" +
+                    etDob.getText() + "','" +
+                    gender + "','" +
+                    spEvent.getSelectedItem().toString() + "')");
+
+            Toast.makeText(this, "Event Registered Successfully", Toast.LENGTH_SHORT).show();
+        });
+
+        // Display Button
+        btnDisplay.setOnClickListener(v ->
+                startActivity(new Intent(this, MainActivity2.class)));
+    }
+}
+
+
+Xml Files:
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="KAMARAJ COLLEGE EVENT REGISTRATION"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:padding="10dp"/>
+
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Name"/>
+
+        <EditText
+            android:id="@+id/etDept"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Department"/>
+
+        <EditText
+            android:id="@+id/etYear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Year"/>
+
+        <EditText
+            android:id="@+id/etDob"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select Date of Birth"
+            android:focusable="false"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gender"
+            android:textStyle="bold"
+            android:paddingTop="10dp"/>
+
+        <RadioGroup
+            android:id="@+id/rgGender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/rMale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Male"/>
+
+            <RadioButton
+                android:id="@+id/rFemale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Female"/>
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Event"
+            android:textStyle="bold"
+            android:paddingTop="10dp"/>
+
+        <Spinner
+            android:id="@+id/spEvent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Submit"
+            android:layout_marginTop="15dp"/>
+
+        <Button
+            android:id="@+id/btnDisplay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Display Records"
+            android:layout_marginTop="10dp"/>
+
+    </LinearLayout>
+
+</ScrollView>
+
+Java File:
+package com.example.kamarajcollege4;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
+public class MainActivity2 extends AppCompatActivity {
+    TextView tName, tDept, tYear, tDob, tGender, tEvent;
+    Button bFirst, bLast, bNext, bPrevious,bBack;
+
+    SQLiteDatabase db;
+    Cursor c;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main2);
+
+        tName = findViewById(R.id.tName);
+        tDept = findViewById(R.id.tDept);
+        tYear = findViewById(R.id.tYear);
+        tDob = findViewById(R.id.tDob);
+        tGender = findViewById(R.id.tGender);
+        tEvent = findViewById(R.id.tEvent);
+
+        bFirst = findViewById(R.id.b1);
+        bLast = findViewById(R.id.b2);
+        bNext = findViewById(R.id.b3);
+        bPrevious = findViewById(R.id.b4);
+        bBack = findViewById(R.id.button);
+
+        db = openOrCreateDatabase("KamarajCollegeDB", MODE_PRIVATE, null);
+
+        c = db.rawQuery("SELECT * FROM event", null);
+
+        if (c.getCount() == 0) {
+            Toast.makeText(this, "No Records Found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        c.moveToFirst();
+        showRecord();
+
+        bFirst.setOnClickListener(v -> {
+            c.moveToFirst();
+            showRecord();
+        });
+
+        bLast.setOnClickListener(v -> {
+            c.moveToLast();
+            showRecord();
+        });
+
+        bNext.setOnClickListener(v -> {
+            if (c.moveToNext()) {
+                showRecord();
+            } else {
+                c.moveToLast();
+                Toast.makeText(this, "Last Record", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        bPrevious.setOnClickListener(v -> {
+            if (c.moveToPrevious()) {
+                showRecord();
+            } else {
+                c.moveToFirst();
+                Toast.makeText(this, "First Record", Toast.LENGTH_SHORT).show();
+            }
+        });
+        bBack.setOnClickListener(v -> finish());
+    }
+
+    private void showRecord() {
+
+        tName.setText("Name: " + c.getString(0));
+        tDept.setText("Department: " + c.getString(1));
+        tYear.setText("Year: " + c.getString(2));
+        tDob.setText("DOB: " + c.getString(3));
+        tGender.setText("Gender: " + c.getString(4));
+        tEvent.setText("Event: " + c.getString(5));
+    }
+}
+Xml File:
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="EVENT REGISTRATION DETAILS"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:paddingBottom="15dp"/>
+
+    <TextView
+        android:id="@+id/tName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Name:"/>
+
+    <TextView
+        android:id="@+id/tDept"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Department:"/>
+
+    <TextView
+        android:id="@+id/tYear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Year:"/>
+
+    <TextView
+        android:id="@+id/tDob"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="DOB:"/>
+
+    <TextView
+        android:id="@+id/tGender"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gender:"/>
+
+    <TextView
+        android:id="@+id/tEvent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Event:"/>
+
+    <Button
+        android:id="@+id/b1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="First Record"
+        android:layout_marginTop="15dp"/>
+
+    <Button
+        android:id="@+id/b2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Last Record"
+        android:layout_marginTop="10dp"/>
+
+    <Button
+        android:id="@+id/b3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Next Record"
+        android:layout_marginTop="10dp"/>
+
+    <Button
+        android:id="@+id/b4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Previous Record"
+        android:layout_marginTop="10dp"/>
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Back to home" />
+
+</LinearLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OUTPUT:
 
